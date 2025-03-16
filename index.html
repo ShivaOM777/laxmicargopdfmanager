@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #searchBar { margin: 10px; padding: 8px; width: 50%; }
+        #pdfList { list-style: none; padding: 0; }
+        .pdf-item { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .folder { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>PDF Manager</h2>
+    <input type="file" id="pdfUpload" accept="application/pdf">
+    <select id="monthSelector">
+        <option value="">Select Month</option>
+        <option value="2025-01">January 2025</option>
+        <option value="2025-02">February 2025</option>
+        <option value="2025-03">March 2025</option>
+        <option value="2025-04">April 2025</option>
+        <option value="2025-05">May 2025</option>
+        <option value="2025-06">June 2025</option>
+        <option value="2025-07">July 2025</option>
+        <option value="2025-08">August 2025</option>
+        <option value="2025-09">September 2025</option>
+        <option value="2025-10">October 2025</option>
+        <option value="2025-11">November 2025</option>
+        <option value="2025-12">December 2025</option>
+    </select>
+    <ul id="pdfList"></ul>
+    <input type="text" id="searchBar" placeholder="Search PDFs...">
+    
+    <script>
+        const pdfList = document.getElementById("pdfList");
+        const searchBar = document.getElementById("searchBar");
+        const pdfUpload = document.getElementById("pdfUpload");
+        const monthSelector = document.getElementById("monthSelector");
+        let pdfFiles = {};
+
+        pdfUpload.addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            const selectedMonth = monthSelector.value;
+            if (!selectedMonth) {
+                alert("Please select a month before uploading.");
+                return;
+            }
+            if (file && file.type === "application/pdf") {
+                const url = URL.createObjectURL(file);
+                if (!pdfFiles[selectedMonth]) {
+                    pdfFiles[selectedMonth] = [];
+                }
+                pdfFiles[selectedMonth].push({ name: file.name, url: url });
+                renderList();
+            }
+        });
+
+        searchBar.addEventListener("input", function() {
+            renderList(this.value.toLowerCase());
+        });
+
+        function renderList(filter = "") {
+            pdfList.innerHTML = "";
+            Object.keys(pdfFiles).forEach(month => {
+                const filteredFiles = pdfFiles[month].filter(pdf => pdf.name.toLowerCase().includes(filter));
+                if (filteredFiles.length > 0) {
+                    const monthHeader = document.createElement("li");
+                    monthHeader.classList.add("folder");
+                    monthHeader.textContent = month;
+                    pdfList.appendChild(monthHeader);
+
+                    filteredFiles.forEach(pdf => {
+                        const li = document.createElement("li");
+                        li.classList.add("pdf-item");
+                        li.innerHTML = `<a href="${pdf.url}" target="_blank">${pdf.name}</a>`;
+                        pdfList.appendChild(li);
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
